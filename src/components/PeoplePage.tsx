@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+
 import { PeopleFilters } from './PeopleFilters';
 import { Loader } from './Loader';
 import { PeopleTable } from './PeopleTable';
+
 import { getPeople } from '../api/people';
 import { Person } from '../types/Person';
 
@@ -12,7 +14,7 @@ export const PeoplePage = () => {
   const [error, setError] = useState(false);
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const query = searchParams.get('query') || '';
   const centuries = searchParams.getAll('centuries');
@@ -26,6 +28,36 @@ export const PeoplePage = () => {
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleSort = (field: string) => {
+    const params = new URLSearchParams(searchParams);
+
+    if (sort !== field) {
+      params.delete('sort');
+      params.delete('order');
+
+      params.append('sort', field);
+      params.append('order', 'asc');
+
+      setSearchParams(params);
+
+      return;
+    }
+
+    if (order === 'asc') {
+      params.delete('order');
+      params.append('order', 'desc');
+
+      setSearchParams(params);
+
+      return;
+    }
+
+    params.delete('sort');
+    params.delete('order');
+
+    setSearchParams(params);
+  };
 
   const filteredPeople = people.filter(person => {
     const search = query.toLowerCase();
@@ -63,10 +95,14 @@ export const PeoplePage = () => {
           : a.sex.localeCompare(b.sex);
 
       case 'born':
-        return order === 'desc' ? b.born - a.born : a.born - b.born;
+        return order === 'desc'
+          ? b.born - a.born
+          : a.born - b.born;
 
       case 'died':
-        return order === 'desc' ? b.died - a.died : a.died - b.died;
+        return order === 'desc'
+          ? b.died - a.died
+          : a.died - b.died;
 
       default:
         return 0;
@@ -88,7 +124,9 @@ export const PeoplePage = () => {
               {loading && <Loader />}
 
               {error && (
-                <p data-cy="peopleLoadingError">Something went wrong</p>
+                <p data-cy="peopleLoadingError">
+                  Something went wrong
+                </p>
               )}
 
               {!loading && !error && sortedPeople.length === 0 && (
@@ -102,6 +140,9 @@ export const PeoplePage = () => {
                   people={sortedPeople}
                   selectedPerson={selectedPerson}
                   onSelectPerson={setSelectedPerson}
+                  sort={sort || ''}
+                  order={order || ''}
+                  onSort={handleSort}
                 />
               )}
             </div>
