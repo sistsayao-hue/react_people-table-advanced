@@ -5,9 +5,9 @@ import { useSearchParams } from 'react-router-dom';
 import { Person } from '../types/Person';
 import { getPeople } from '../api';
 
-import { PeopleTable } from '../components/PeopleTable';
-import { PeopleFilters } from '../components/PeopleFilters';
-import { Loader } from '../components/Loader';
+import { PeopleTable } from './PeopleTable';
+import { PeopleFilters } from './PeopleFilters';
+import { Loader } from './Loader';
 
 export const PeoplePage = () => {
   const [people, setPeople] = useState<Person[]>([]);
@@ -41,11 +41,11 @@ export const PeoplePage = () => {
   const handleSort = (field: string) => {
     const params = new URLSearchParams(searchParams);
 
-    if (sort === field) {
-      params.set(
-        'order',
-        order === 'asc' ? 'desc' : 'asc',
-      );
+    if (sort === field && order === 'desc') {
+      params.delete('sort');
+      params.delete('order');
+    } else if (sort === field) {
+      params.set('order', 'desc');
     } else {
       params.set('sort', field);
       params.set('order', 'asc');
@@ -60,20 +60,36 @@ export const PeoplePage = () => {
       return 0;
     }
 
-    let first = a[sort as keyof Person];
-    let second = b[sort as keyof Person];
+    const first = a[sort as keyof Person];
+    const second = b[sort as keyof Person];
+
 
     if (first === undefined || second === undefined) {
       return 0;
     }
 
-    if (typeof first === 'string' && typeof second === 'string') {
+
+    if (
+      typeof first === 'string' &&
+      typeof second === 'string'
+    ) {
       const result = first.localeCompare(second);
 
       return order === 'desc'
         ? -result
         : result;
     }
+
+
+    if (
+      typeof first === 'number' &&
+      typeof second === 'number'
+    ) {
+      return order === 'desc'
+        ? second - first
+        : first - second;
+    }
+
 
     return 0;
   });
@@ -90,7 +106,9 @@ export const PeoplePage = () => {
         People
       </h1>
 
+
       <PeopleFilters />
+
 
       {errorMessage && (
         <p className="notification is-danger">
