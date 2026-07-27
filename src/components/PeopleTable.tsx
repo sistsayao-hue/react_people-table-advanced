@@ -1,16 +1,35 @@
+
 import { Person } from '../types/Person';
 
 type Props = {
   people: Person[];
   selectedPerson: Person | null;
   onSelectPerson: (person: Person) => void;
+  sort: string;
+  order: string;
+  onSort: (field: string) => void;
 };
 
 export const PeopleTable = ({
   people,
   selectedPerson,
   onSelectPerson,
+  sort,
+  order,
+  onSort,
 }: Props) => {
+  const getArrow = (field: string) => {
+    if (sort !== field) {
+      return '↕';
+    }
+
+    return order === 'desc' ? '↓' : '↑';
+  };
+
+  const getClassName = (field: string) => {
+    return sort === field ? 'has-text-weight-bold' : '';
+  };
+
   return (
     <table
       data-cy="peopleTable"
@@ -18,10 +37,34 @@ export const PeopleTable = ({
     >
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Sex</th>
-          <th>Born</th>
-          <th>Died</th>
+          <th
+            className={getClassName('name')}
+            onClick={() => onSort('name')}
+          >
+            Name {getArrow('name')}
+          </th>
+
+          <th
+            className={getClassName('sex')}
+            onClick={() => onSort('sex')}
+          >
+            Sex {getArrow('sex')}
+          </th>
+
+          <th
+            className={getClassName('born')}
+            onClick={() => onSort('born')}
+          >
+            Born {getArrow('born')}
+          </th>
+
+          <th
+            className={getClassName('died')}
+            onClick={() => onSort('died')}
+          >
+            Died {getArrow('died')}
+          </th>
+
           <th>Mother</th>
           <th>Father</th>
         </tr>
@@ -30,24 +73,16 @@ export const PeopleTable = ({
       <tbody>
         {people.map(person => (
           <tr
-            data-cy="person"
             key={person.slug}
             className={
               selectedPerson?.slug === person.slug
-                ? 'has-background-warning'
+                ? 'has-background-warning-light'
                 : ''
             }
             onClick={() => onSelectPerson(person)}
           >
             <td>
-              <a
-                className={
-                  person.sex === 'f' ? 'has-text-danger' : 'has-text-link'
-                }
-                href={`#/people/${person.slug}`}
-              >
-                {person.name}
-              </a>
+              {person.name}
             </td>
 
             <td>{person.sex}</td>
@@ -59,17 +94,13 @@ export const PeopleTable = ({
             <td>
               {person.mother ? (
                 <a
-                  className="has-text-danger"
                   href={`#/people/${person.mother.slug}`}
+                  className="has-text-danger"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                  }}
                 >
                   {person.mother.name}
-                </a>
-              ) : person.motherName ? (
-                <a
-                  className="has-text-danger"
-                  href={`#/people/${person.motherSlug}`}
-                >
-                  {person.motherName}
                 </a>
               ) : (
                 '-'
@@ -79,17 +110,13 @@ export const PeopleTable = ({
             <td>
               {person.father ? (
                 <a
-                  className="has-text-link"
                   href={`#/people/${person.father.slug}`}
+                  className="has-text-link"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                  }}
                 >
                   {person.father.name}
-                </a>
-              ) : person.fatherName ? (
-                <a
-                  className="has-text-link"
-                  href={`#/people/${person.fatherSlug}`}
-                >
-                  {person.fatherName}
                 </a>
               ) : (
                 '-'
@@ -101,4 +128,3 @@ export const PeopleTable = ({
     </table>
   );
 };
-
