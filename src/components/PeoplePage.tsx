@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { Person } from '../types/Person';
-import { getPeople } from '../api/people';
+import { getPeople } from '../api';
+
 import { PeopleTable } from '../components/PeopleTable';
 import { PeopleFilters } from '../components/PeopleFilters';
 import { Loader } from '../components/Loader';
