@@ -4,8 +4,8 @@ import { useSearchParams } from 'react-router-dom';
 import { PeopleFilters } from './PeopleFilters';
 import { Loader } from './Loader';
 import { PeopleTable } from './PeopleTable';
+import { getPeople } from '../api';
 
-import { getPeople } from '../api/people';
 import { Person } from '../types/Person';
 
 export const PeoplePage = () => {
